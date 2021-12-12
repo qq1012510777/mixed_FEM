@@ -35,9 +35,28 @@ addpath(genpath([currentPath, '/EBmfem']));
 %
 % Neumann = [7 8; 8 1; 1 2; 3 4; 4 5];
 
-%[coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.5, 0.7);
-%[coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(10, 10);
-[coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(20, 20);
+% [coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.5, 0.7);
+% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(60, 60);
+% [coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(20, 20);
+
+coordinate = [0	0
+        80	0
+        80	50
+        0	50
+        40	25];
+element = [1	5	4
+        3	5	2
+        2	5	1
+        4	5	3];
+dirichlet = [4	1
+        2	3];
+Neumann = [1	2
+        3	4];
+dirichlet_att = ["in";
+            "out"];
+
+figure(3)
+Show_mesh(coordinate, element, 1)
 
 [nodes2element, nodes2edge, noedges, edge2element, interioredge] = edge(element, coordinate);
 
@@ -50,7 +69,7 @@ B = sparse(noedges, noedges);
 C = sparse(noedges, size(element, 1));
 
 figure(3)
-Show_mesh(coordinate, element, 1)
+hold on
 Show_edge_NO(coordinate, nodes2edge)
 hold on
 title('node NO (red) and edge NO (black)')
