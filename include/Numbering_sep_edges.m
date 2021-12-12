@@ -1,6 +1,6 @@
 function f = Numbering_sep_edges(element, nodes2edge)
 
-    f = zeros(3 * size(element, 1), 1);
+    f = zeros(3 * size(element, 1), 2);
 
     for i = 1:size(element, 1)
 
@@ -12,6 +12,7 @@ function f = Numbering_sep_edges(element, nodes2edge)
             edgeNO = nodes2edge(node1, node2);
 
             f((i - 1) * 3 + k, 1) = edgeNO;
+            f((i - 1) * 3 + k, 2) = i;
             k = k + 1;
         end
 

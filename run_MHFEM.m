@@ -2,14 +2,17 @@ clc;
 close all
 clear all
 
+conductivity = -5;
+conductivity = conductivity^(-1);
+
 currentPath = fileparts(mfilename('fullpath'));
 
 addpath(genpath([currentPath, '/include']));
 addpath(genpath([currentPath, '/EBmfem']));
 
 % [coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.2, 0.3);
-% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(10, 10);
-[coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(10, 13);
+% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(20, 20);
+[coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(10, 20);
 
 figure(3)
 Show_mesh(coordinate, element, 1)
@@ -37,7 +40,7 @@ for j = 1:noelements
 
     %--------------------
     I_t = [(j - 1) * 3 + 1; (j - 1) * 3 + 2; (j - 1) * 3 + 3];
-    B(I_t, I_t) = B(I_t, I_t) + stimaB(coord); %diag(signum) * stimaB(coord) * diag(signum);
+    B(I_t, I_t) = B(I_t, I_t) + conductivity * stimaB(coord); %diag(signum) * stimaB(coord) * diag(signum);
     n = coord(:, [2, 3, 1]) - coord(:, [3, 1, 2]);
     C(I_t, j) = C(I_t, j) + [norm(n(:, 1)) norm(n(:, 2)) norm(n(:, 3))]'; % diag(signum) * [norm(n(:, 1)) norm(n(:, 2)) norm(n(:, 3))]';
 
@@ -123,8 +126,42 @@ velocity_edge = zeros(noedges, 1);
 
 for i = 1:size(Sep_edge_NO, 1)
     edgeNO = Sep_edge_NO(i, 1);
-    velocity_edge(edgeNO, 1) = velocity_sep_edge(i, 1);
+
+    eleNO = Sep_edge_NO(i, 2);
+
+    if (edge2element(edgeNO, 3) == eleNO)
+        velocity_edge(edgeNO, 1) = velocity_sep_edge(i, 1);
+    end
+
 end
+
+Center_ = [];
+
+for i = 1:size(edge2element, 1)
+    Center_(i, :) = 0.5 * (coordinate(edge2element(i, 1), :) + coordinate(edge2element(i, 2), :));
+end
+
+edge_normal = Global_normal(edge2element, coordinate);
+
+figure(4); title('Global normal vectors', 'interpreter', 'latex'); hold on
+P = patch('Vertices', coordinate, 'Faces', element, 'FaceVertexCData', zeros(size(coordinate, 1), 1), 'FaceColor', 'interp', 'EdgeAlpha', 0.9, 'facealpha', 0);
+hold on
+quiver(Center_(:, 1), Center_(:, 2), edge_normal(:, 1), edge_normal(:, 2));
+hold on
+
+flux_normal = [];
+
+for i = 1:size(edge2element, 1)
+    vec_ = edge_normal(i, :);
+    if (velocity_edge(i, :) < 0); vec_ = -vec_; end;
+    flux_normal(i, :) = vec_ .* abs(velocity_edge(i, :));
+end
+
+figure(5); title('Flux normal vectors', 'interpreter', 'latex'); hold on
+P = patch('Vertices', coordinate, 'Faces', element, 'FaceVertexCData', zeros(size(coordinate, 1), 1), 'FaceColor', 'interp', 'EdgeAlpha', 0.9, 'facealpha', 0);
+hold on
+quiver(Center_(:, 1), Center_(:, 2), flux_normal(:, 1), flux_normal(:, 2), 0.8, 'r');
+hold on
 
 [inlet outlet] = Calculate_intlet_outlet(coordinate, dirichlet, dirichlet_att, nodes2edge, velocity_edge);
 inlet
