@@ -10,9 +10,9 @@ currentPath = fileparts(mfilename('fullpath'));
 addpath(genpath([currentPath, '/include']));
 addpath(genpath([currentPath, '/EBmfem']));
 
-% [coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.2, 0.3);
-% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(20, 20);
-[coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(10, 20);
+[coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.2, 0.3);
+%[coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(20, 20);
+% [coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(10, 20);
 
 figure(3)
 Show_mesh(coordinate, element, 1)
@@ -166,3 +166,6 @@ hold on
 [inlet outlet] = Calculate_intlet_outlet(coordinate, dirichlet, dirichlet_att, nodes2edge, velocity_edge);
 inlet
 outlet
+figure(6); title('Pressure field', 'interpreter', 'latex'); hold on
+patch('Vertices', coordinate, 'Faces', element, 'FaceVertexCData', full(pressure_ele), 'FaceColor', 'flat', 'EdgeAlpha', 0.9, 'facealpha', 1);
+colorbar

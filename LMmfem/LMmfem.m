@@ -16,6 +16,9 @@
 %     MFEM with a Posteriori Error Control" by C.Bahriawati and C. Carstensen
 
 % B.1. The main program 
+clc
+clear all
+close all
 load coordinate.dat;
 load element.dat;
 load dirichlet.dat;
@@ -92,11 +95,14 @@ x=A\b;
 
 figure(1)
 uinit=3*size(element,1)+1:4*size(element,1);
-ShowDisplacement(element,coordinate,x(uinit));
+ShowDisplacement(element,coordinate,full(x(uinit)));
+view(2)
+colorbar
 figure(2)
 p=fluxLM(element,coordinate,x);
 ShowFlux(element,coordinate,p);
 pEval=fluxLMEval(element,coordinate,x);
+colorbar
 eta_T = Aposteriori(element,coordinate,dirichlet,Neumann,x,pEval)
 
 
