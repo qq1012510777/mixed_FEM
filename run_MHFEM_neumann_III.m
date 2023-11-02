@@ -11,9 +11,9 @@ addpath(genpath([currentPath, '/include']));
 addpath(genpath([currentPath, '/EBmfem']));
 
 % [coordinate element dirichlet dirichlet_att Neumann] = L_shape_mesh(0.1, 0.15);
-% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(70, 80);
+% [coordinate element dirichlet dirichlet_att Neumann] = Rectangle_mesh(10, 20);
 % [coordinate element dirichlet dirichlet_att Neumann] = Trapezoidal_mesh(10, 15);
-[coordinate element dirichlet dirichlet_att Neumann] = Funnel_mesh(2, 3); 
+[coordinate element dirichlet dirichlet_att Neumann] = Funnel_mesh(4, 7); 
 
 figure(3)
 Show_mesh(coordinate, element, 1)
@@ -149,31 +149,30 @@ K = [B, C, D;
 %     K(edgeNO_k, edgeNO_k) = 1;
 % end
 
-% A_ = K(1:noelements * 3, 1:noelements * 3);
-% B_ = K(1:noelements * 3, noelements * 3 + 1:noelements * 3 + noelements);
-% C_ = K(1:noelements * 3, noelements * 3 + noelements + 1:end);
-% g_ = b(1:noelements * 3, :);
-% f_ = b(noelements * 3 + 1:noelements * 3 + noelements, :);
-% s_ = b(noelements * 3 + noelements + 1:end, :);
+A_ = K(1:noelements * 3, 1:noelements * 3);
+B_ = K(1:noelements * 3, noelements * 3 + 1:noelements * 3 + noelements);
+C_ = K(1:noelements * 3, noelements * 3 + noelements + 1:end);
+g_ = b(1:noelements * 3, :);
+f_ = b(noelements * 3 + 1:noelements * 3 + noelements, :);
+s_ = b(noelements * 3 + noelements + 1:end, :);
+
+B_ = B_';
+C_ = C_';
+
+D_ = C_ * inv(A_) * C_' - C_ * inv(A_) * B_' * inv((B_ * inv(A_) * B_')) * B_ * inv(A_) * C_';
+r_ = C_ * inv(A_) * g_ - s_ + C_ * inv(A_) * B_' * inv((B_ * inv(A_) * B_')) * (f_ - B_ * inv(A_) * g_);
+
+pressure_edge = (D_) \ r_;
 % 
-% B_ = B_';
-% C_ = C_';
+pressure_ele = inv((B_ * inv(A_) * B_')) * (B_ * inv(A_) * g_ - B_ * inv(A_) * C_' * pressure_edge - f_);
 % 
-% D_ = C_ * inv(A_) * C_' - C_ * inv(A_) * B_' * inv((B_ * inv(A_) * B_')) * B_ * inv(A_) * C_';
-% r_ = C_ * inv(A_) * g_ - s_ +C_ * inv(A_) * B_' * inv((B_ * inv(A_) * B_')) * (f_ - B_ * inv(A_) * g_);
-% 
-% pressure_edge = inv(D_) * r_;
-% 
-% pressure_ele = inv((B_ * inv(A_) * B_')) * (B_ * inv(A_) * g_ - B_ * inv(A_) * C_' * pressure_edge - f_);
-% 
-% velocity_sep_edge = inv(A_) * (g_ - B_' * pressure_ele - C_' * pressure_edge);
+velocity_sep_edge = inv(A_) * (g_ - B_' * pressure_ele - C_' * pressure_edge);
 % 
 % velocity_edge = zeros(noedges, 1);
-
-xx = K\b;
-velocity_sep_edge = xx(1:noelements * 3);
-pressure_ele = xx(noelements * 3 + 1: noelements * 3 + noelements);
-pressure_ele_edge = xx(noelements * 3 + noelements + 1: end);
+% xx = K\b;
+% velocity_sep_edge = xx(1:noelements * 3);
+% pressure_ele = xx(noelements * 3 + 1: noelements * 3 + noelements);
+% pressure_ele_edge = xx(noelements * 3 + noelements + 1: end);
 velocity_edge = zeros(noedges, 1);
 
 for i = 1:size(Sep_edge_NO, 1)

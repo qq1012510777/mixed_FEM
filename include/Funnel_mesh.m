@@ -2,8 +2,8 @@ function [coordinate element dirichlet dirichlet_att Neumann] = Funnel_mesh(min_
 
     model = createpde;
 
-    Trapezoidal_x = [0, 40, 80, 80, 30, 0];
-    Trapezoidal_y = [-70, -10, -70, 120, 20, 120];
+    Trapezoidal_x = [0, 40, 80, 80, 40, 0];
+    Trapezoidal_y = [-70, -10, -70, 120, 10, 120];
 
     R1 = [3, 6, Trapezoidal_x, Trapezoidal_y]';
     gm = [R1];
